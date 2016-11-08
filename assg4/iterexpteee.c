@@ -1,0 +1,242 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+
+struct node
+{
+  char data;
+  struct node* left;
+  struct node* right;
+};
+
+struct node* head;
+
+struct node1
+{
+  struct node* data1;
+  struct node1* next;
+};
+
+struct stack
+{
+ struct node1* top;
+ 
+}stk;
+
+
+void inorder(struct node* head);
+struct node* insert(struct node* head, char ch)
+{
+   if(head==NULL)
+       {
+          struct node* temp=(struct node*)malloc(sizeof(struct node));
+          temp->data=ch;
+	   temp->left=NULL;
+           temp->right=NULL;
+          return temp;
+      }
+    char p=head->data;
+       if(p=='+' || p=='-' || p=='*' || p=='/' || p=='^')
+            {
+               struct node* temp=insert(head->left, ch);
+                if(temp==NULL)
+                  {
+                   temp=insert(head->right, ch);
+                      if(temp==NULL)
+                         return NULL;
+                       else
+                          {
+                           head->right=temp;
+                           return head;
+                           }
+                  } 
+                else
+                  {
+                   head->left=temp;
+                    return head;
+                  }
+            }
+
+         else 
+                return NULL;
+}
+
+void push(struct stack *stk, struct node* head)
+
+{
+  struct node1* temp=(struct node1*)malloc(sizeof(struct node1));
+	if(stk->top==NULL)
+         {
+	   
+	   temp->next=NULL;
+           temp->data1=head;
+	   stk->top=temp;
+           
+	 }
+      else
+	{
+	  
+	  temp->next=stk->top;
+          temp->data1=head;
+	  stk->top=temp;
+	}
+	//print_stk(stk);
+}
+
+struct node* pop(struct stack *stk)
+{
+  if(stk->top==NULL)
+      printf("stack is empty\n");
+  else
+     {
+ 	struct node* p=stk->top->data1;
+        stk->top=stk->top->next;
+	return p;
+      }
+}
+
+ void preorder(struct node* head)
+  {
+
+   if(head!=NULL)
+        push(&stk,head);
+
+    while(stk.top!=NULL)
+     {
+       struct node* p=pop(&stk);
+        printf("%c", p->data);
+          if(p->right!=NULL)
+             push(&stk, p->right);
+          if(p->left!=NULL)
+              push(&stk, p->left);
+      
+     }
+}
+
+void postorder(struct node* head)
+{
+  
+if(head==NULL)
+     return;
+
+   do
+     {
+         while(head!=NULL)
+           {
+               if(head->right!=NULL)
+                   push(&stk, head->right);
+              push(&stk, head);
+              head=head->left;
+            }
+
+           head=pop(&stk);
+ if(head->right!=NULL &&stk.top!=NULL&& stk.top->data1 == head->right)
+   {
+         struct node* p=pop(&stk);
+         push(&stk, head);
+         head=head->right;
+   }
+ else
+   {
+     printf("%c", head->data);
+     head=NULL;
+   }
+}while(stk.top!=NULL);
+
+}
+
+
+int main()
+{
+  head=NULL;
+  char a[1000],ch;
+  int i,n;
+ // printf("enter a string\n");
+  scanf("%s",a);
+  n=strlen(a);
+for(i=0; i<n;i++)
+{
+   int p=a[i];
+    if((p>=97&&p<=122) || (a[i]=='+' || a[i]=='-' || a[i]=='/' || a[i]=='*' || a[i]=='^') )
+     {}
+   else
+       {
+        printf("INVALID INPUT\n");
+        exit(0);
+       }
+}
+
+   ch=a[0];
+for(i=0;i<n;i++)
+{
+    
+    struct node* temp=insert(head,a[i]);
+     if(temp==NULL)
+        {
+         printf("inavalid input\n");
+         exit(0);
+        }
+     else
+        head=temp;
+}
+ // printf("inorder:");
+  inorder(head);
+  printf("\n");
+ // printf("preorder:");
+  preorder(head);
+  printf("\n");
+ // printf("postorder:");
+  postorder(head);
+  printf("\n");
+
+}
+
+void inorder(struct node* head)
+{
+   if(head!=NULL)
+       {
+	 int k=0;
+	 struct node* temp=head;
+         struct node* temp1=NULL;
+	 struct node1* temp2;
+	 do{
+	     while(temp!=NULL)
+               {
+	          push(&stk,temp);
+		  if(k>0)
+	            printf("(");
+	          k++;
+	          temp=temp->left;
+	        }
+	      while(temp==NULL && stk.top!=NULL)
+                 {
+	           temp2=stk.top;
+	           temp=temp2->data1;
+	           if(temp->right==NULL || temp->right==temp1)
+                      {
+	                 if(temp->right==NULL)
+	                  printf("%c",temp->data);
+	                 else
+	                    printf(")");
+	                    temp=pop(&stk);
+	                   temp1=temp;
+	                   temp=NULL;
+	              }
+	           else
+                     {
+	             printf("%c",temp->data);
+	             temp=temp->right;
+                     }
+	         }
+	     k=0;
+	   }while(stk.top!=NULL);
+	}
+   return;
+}
+
+
+
+
+
+    
